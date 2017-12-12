@@ -5,7 +5,7 @@ Adafruit Microphone Amplifier
 
 unsigned int led = 3;                   // PWM Output Pin for LED
 
-double amplify = 7.0;
+double amplify = 5.0;
 double brightness = 0.0;
 int peakToPeak = 0;
 unsigned int i = 0;
@@ -26,26 +26,26 @@ void setup()
 
 void loop() 
 {
-  const unsigned int sampleWindow = 50;   // level window width in mS (50 mS = 20Hz)
+  const unsigned int sampleWindow = 50;     // level window width in mS (50 mS = 20Hz)
   
-  const unsigned int mic = 0;             // Input pin of Microphone
-  const unsigned int micMax = 675;
+  const int mic = 0;                        // Input pin of Microphone
+  const int micMax = 675;
   const double pwm = 255.0;
   const double pwmMin = 50.0;
   
-  const double amplifyMax = 7.0;          // Regulater
+  const double amplifyMax = 10.0;           // Regulater
   const double amplifyMin = 1.0;
   const double difference = 1.0;
-  const unsigned int limit = 5;           // Wie oft in die Begrenzung gefahren werden darf
+  const int limit = 5;                      // Wie oft in die Begrenzung gefahren werden darf
 
-  const int sensitvity = 15;    // Filter
+  const int sensitvity = 15;                // Filter
   int oldPTP = 0;
 
-  unsigned int lag = 250;                  // For the Builtin_led to show the Amplify
+  unsigned int lag = 250;                   // For the Builtin_led to show the Amplify
   unsigned int outTime = 1000;
 
 
-  unsigned long startMillis = millis();    // Start of sample window
+  unsigned long startMillis = millis();     // Start of sample window
 
   unsigned int signalMax = 0;
   unsigned int signalMin = micMax;
@@ -53,31 +53,30 @@ void loop()
 
   // collect data for 50 mS
   oldPTP = peakToPeak;
-  //Serial.println(oldPTP);
+  
   while (millis() - startMillis < sampleWindow)
   {
      unsigned int level = analogRead(mic);
-     if (level <= micMax)                // toss out spurious readings
+     if (level <= micMax)                   // toss out spurious readings
      {
         if (level > signalMax)
         {
-           signalMax = level;            // save just the max levels
+           signalMax = level;               // save just the max levels
         }
         else if (level < signalMin)
         {
-           signalMin = level;            // save just the min levels
+           signalMin = level;               // save just the min levels
         }
      }
   }
-  peakToPeak = signalMax - signalMin;    // max - min = peak-peak amplitude
-  //Serial.println(peakToPeak);
-  //Serial.println(oldPTP-peakToPeak);
+  peakToPeak = signalMax - signalMin;       // max - min = peak-peak amplitude
 
   // Filter
   if(sensitvity < oldPTP - peakToPeak || -sensitvity > oldPTP - peakToPeak)
   {
-    const unsigned int fadeAmount = 5;
-    const unsigned int regulateWindow = 15;
+    const int fadeAmount = 5;
+    const int regulateWindow = 200;
+    const int gap = 10;
     double target = amplify * (peakToPeak * pwm) / micMax;  // convert to pwm
     amplifyOld = (int) amplify;
 
@@ -85,11 +84,11 @@ void loop()
     // Limiter
     if(target >= pwm)
     {
-      target = pwm;                    // set maximal brightness
+      target = pwm;                       // set maximal brightness
       i = i + 1;
       j = 0;
     }
-    else if(target <= pwmMin)          // set minimal brightness
+    else if(target <= pwmMin)             // set minimal brightness
     {
       target = pwmMin;
       j = j + 1;
@@ -112,7 +111,7 @@ void loop()
       
     startMillis = millis();
 
-    while(brightness < target-fadeAmount || brightness > target+fadeAmount || millis() - startMillis < regulateWindow)          // fading the brightness
+    while((brightness < target-fadeAmount || brightness > target+fadeAmount) && millis() - startMillis < regulateWindow)          // fading the brightness
     {
       if(brightness > target)
       {
@@ -122,9 +121,12 @@ void loop()
       {
         brightness += fadeAmount;
       }
-      
-      //Serial.print("Target: ");
-      //Serial.println(target);
+
+      delay(gap);
+      /*Serial.print("Brightness: ");
+      Serial.println(brightness);
+      Serial.print("Target: ");
+      Serial.println(target);*/
       
       analogWrite(led, (int)brightness);
     }
@@ -154,9 +156,11 @@ void loop()
     outTimeMillis = millis();
   }
 
-  Serial.print("Brightness: ");
-  Serial.println(brightness);
+  //Serial.print("Brightness: ");
+  //Serial.println(brightness);
   //Serial.println(peakToPeak);
+  //Serial.println(oldPTP);
+  //Serial.println(oldPTP-peakToPeak);
   //Serial.print("Amplify: ");
   //Serial.println(amplify);
   //Serial.print("j: ");

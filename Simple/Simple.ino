@@ -39,21 +39,12 @@ void loop()
       }
    }
    peakToPeak = signalMax - signalMin;  // max - min = peak-peak amplitude
+
+   // 255 ist maximalte PWM, 675 ist das maximale Signal, dass vom Mikrophon kommt, also maximaler Wert für peakToPeak
    double volts = (peakToPeak * 255) / 675;  // convert to pwm
-   //double volts = (peakToPeak * 5.0) / 1024;  // convert to volts
-
-
-   /*if(volts <= 50)
-   {
-    volts = 50;
-   }
-
-   if(volts >= 255)
-   {
-    volts = 255;
-   }*/
    
    analogWrite(led, volts);
+   
    Serial.print("Signal: ");
    Serial.println(peakToPeak);
 
