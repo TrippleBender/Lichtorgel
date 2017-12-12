@@ -74,12 +74,12 @@ void loop()
   // Filter
   if(sensitvity < oldPTP - peakToPeak || -sensitvity > oldPTP - peakToPeak)
   {
-    const int fadeAmount = 5;
-    const int regulateWindow = 200;
-    const int gap = 10;
+    const int regulateWindow = 40;
+    const int gap = 3;
+    
     double target = amplify * (peakToPeak * pwm) / micMax;  // convert to pwm
     amplifyOld = (int) amplify;
-
+    
 
     // Limiter
     if(target >= pwm)
@@ -108,12 +108,13 @@ void loop()
       j = 0;
       i = 0;
     }
-      
+
+    double fadeAmount = (target - brightness) / (regulateWindow/gap);
     startMillis = millis();
 
     while((brightness < target-fadeAmount || brightness > target+fadeAmount) && millis() - startMillis < regulateWindow)          // fading the brightness
     {
-      if(brightness > target)
+      /*if(brightness > target)
       {
         brightness -= fadeAmount;
       }
@@ -122,13 +123,17 @@ void loop()
         brightness += fadeAmount;
       }
 
-      delay(gap);
+      */
       /*Serial.print("Brightness: ");
       Serial.println(brightness);
       Serial.print("Target: ");
       Serial.println(target);*/
       
+      brightness += fadeAmount;
+      
       analogWrite(led, (int)brightness);
+
+      delay(gap);
     }
 
     brightness = target;
@@ -167,6 +172,6 @@ void loop()
   //Serial.println(j);
   //Serial.print("i: ");
   //Serial.println(i);
-  Serial.println(" ");
+  //Serial.println(" ");
   
 }
