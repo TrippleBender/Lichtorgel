@@ -26,7 +26,7 @@ void setup()
 
 void loop() 
 {
-  const unsigned int sampleWindow = 50;     // level window width in mS (50 mS = 20Hz)
+  const unsigned int sampleWindow = 40;     // level window width in mS (50 mS = 20Hz)
   
   const int mic = 0;                        // Input pin of Microphone
   const int micMax = 675;
@@ -74,8 +74,8 @@ void loop()
   // Filter
   if(sensitvity < oldPTP - peakToPeak || -sensitvity > oldPTP - peakToPeak)
   {
-    const int regulateWindow = 40;
-    const int gap = 3;
+    const int regulateWindow = 120;
+    const int gap = 6;
     
     double target = amplify * (peakToPeak * pwm) / micMax;  // convert to pwm
     amplifyOld = (int) amplify;
@@ -114,16 +114,6 @@ void loop()
 
     while((brightness < target-fadeAmount || brightness > target+fadeAmount) && millis() - startMillis < regulateWindow)          // fading the brightness
     {
-      /*if(brightness > target)
-      {
-        brightness -= fadeAmount;
-      }
-      else
-      {
-        brightness += fadeAmount;
-      }
-
-      */
       /*Serial.print("Brightness: ");
       Serial.println(brightness);
       Serial.print("Target: ");
