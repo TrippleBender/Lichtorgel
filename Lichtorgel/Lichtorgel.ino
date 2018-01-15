@@ -8,19 +8,22 @@ unsigned int led = 3;                   // PWM Output Pin for LED
 double amplify = 5.0;
 double brightness = 0.0;
 int peakToPeak = 0;
-unsigned int i = 0;
+unsigned int i = 0;                     // zählt über- und untersteuern
 unsigned int j = 0;
+unsigned int k = 0;                     // für die Ausgabe der Verstärkung per LED
 
 unsigned long lagMillis = 0;
 unsigned long outTimeMillis = 0;
 unsigned int amplifyOld = 0;
-unsigned int k = 0;
+const double pwmMin = 50.0;             // minimal brightness during silence
 
 void setup() 
-{  
+{
   pinMode(led, OUTPUT);
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(9600);
+
+  analogWrite(led, (int)pwmMin);
 }
 
 
@@ -31,7 +34,6 @@ void loop()
   const int mic = 0;                        // Input pin of Microphone
   const int micMax = 675;
   const double pwm = 255.0;
-  const double pwmMin = 50.0;
   
   const double amplifyMax = 10.0;           // Regulater
   const double amplifyMin = 1.0;
